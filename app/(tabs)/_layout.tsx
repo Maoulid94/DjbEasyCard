@@ -1,45 +1,73 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import useThemeColorContent from "../../components/themeColorContent";
+import { Ionicons } from "@expo/vector-icons";
+import { Stack, Tabs } from "expo-router";
+import { StatusBar, TouchableOpacity } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function TabsLayout() {
+  const colors = useThemeColorContent();
+  const headerLogo = () => (
+    <Image
+      source={require("../../assets/images/logo-1.png")}
+      style={styles.logo}
+    />
+  );
+  const headerIcon = () => (
+    <TouchableOpacity>
+      <Ionicons name="ellipsis-vertical" size={20} color={colors.text} />
+    </TouchableOpacity>
+  );
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
+    <>
+      <StatusBar
+        barStyle={
+          colors.background === "#010b18" ? "light-content":'dark-content'
+        }
+        backgroundColor={colors.background}
       />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+
+      <Tabs
+        screenOptions={{
+          headerTitleAlign: "center",
+          headerLeft: headerLogo,
+          headerRight: headerIcon,
+          tabBarStyle: { backgroundColor: colors.background },
+          headerTitleStyle: { color: colors.text },
+          headerStyle: { backgroundColor: colors.background },
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.text,
         }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="dashboard"
+          options={{
+            title: "Dashboard",
+          }}
+        />
+        <Tabs.Screen
+          name="newCard"
+          options={{
+            title: "New Card",
+          }}
+        />
+        <Tabs.Screen
+          name="allCardsData"
+          options={{
+            title: "Data",
+          }}
+        />
+      </Tabs>
+    </>
   );
 }
+const styles = StyleSheet.create({
+  logo: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    resizeMode: "contain",
+    backgroundColor: "#1e3c67",
+    marginLeft: 10,
+  },
+});
