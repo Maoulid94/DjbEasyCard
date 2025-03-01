@@ -43,6 +43,7 @@ export default function Login() {
         return;
       }
       await SecureStore.setItemAsync("API-KEY", result.apiKey);
+      console.log("API-KEY :", result.apiKey);
       Alert.alert("Success:", result.message);
       //redirect screem
       router.replace("/(tabs)/newCard");

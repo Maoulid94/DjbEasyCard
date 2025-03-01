@@ -12,10 +12,12 @@ import { Camera } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Menu, Provider as PaperProvider } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
+import Constants from "expo-constants";
+
+const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 export default function UploadImageCard() {
   const [image, setImage] = useState<string>("");
-  const [base64Image, setBase64Image] = useState<string | null>(null);
   const [cardNumber, setCardNumber] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -27,8 +29,8 @@ export default function UploadImageCard() {
     message?: string;
   }
 
-  const getApiKey = async () => {
-    return await SecureStore.getItemAsync("API_KEY");
+  const getApiKey = async (): Promise<string | null> => {
+    return await SecureStore.getItemAsync("API-KEY");
   };
 
   const openImagePicker = async (source: "camera" | "gallery") => {
@@ -47,58 +49,85 @@ export default function UploadImageCard() {
       }
     }
 
-    const result: ImagePicker.ImagePickerResult = await (source === "camera"
+    const result = await (source === "camera"
       ? ImagePicker.launchCameraAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: "images",
           allowsEditing: true,
           aspect: [4, 3],
           quality: 1,
-          base64: true,
         })
       : ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          mediaTypes: "images",
           allowsEditing: true,
           aspect: [4, 3],
           quality: 1,
-          base64: true,
         }));
 
     if (!result.canceled) {
-      const asset = result.assets[0];
-      setImage(asset.uri);
-      setBase64Image(asset.base64 || null);
+      setImage(result.assets[0].uri);
     }
   };
 
   const handleImageUpload = async () => {
-    if (!base64Image) {
+    if (!image) {
       Alert.alert("Error", "No image selected.");
       return;
     }
 
-    const apiKey = await getApiKey();
+    const apiKey = (await SecureStore.getItemAsync("API-KEY"));
     if (!apiKey) {
-      Alert.alert("Error", "API key not found.");
+      Alert.alert("Error", "API key not found. Please log in again.");
       return;
     }
 
     try {
-      const response = await fetch(`https://your-api.com/cards/extract`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({ image: base64Image }),
-      });
+      const formData = new FormData();
+      formData.append("image", {
+        uri: image,
+        type: "image/jpeg",
+        name: "upload.jpg",
+      } as any);
+      const headers = {
+        Accept: "application/json",
+        "X-Fields": apiKey,
+        "Content-Type": "multipart/form-data",
+      };
 
-      const result: HandleImageUploadResponse = await response.json();
-      if (response.ok) {
-        setCardNumber(result.cardNumber);
-        Alert.alert("Success", "Card number extracted!");
-      } else {
-        Alert.alert("Error", result.message || "Extraction failed.");
+      console.log("Uploading to API:", `${API_URL}/cards/extract`);
+      console.log("Headers being sent:", headers);
+      console.log("Image URI:", image);
+      console.log("Image URI:", formData);
+
+      const response = await fetch(
+        `${API_URL}/cards/extract?apiKey=${apiKey}`,
+        {
+          method: "POST",
+          // headers: {
+          //   Accept: "application/json",
+          //   "X-Fields": apiKey,
+          //   "Content-Type": "multipart/form-data",
+          // },
+          headers: headers,
+          body: formData,
+        }
+      );
+
+      const text = await response.text();
+      console.log("Raw API Response:", text);
+
+      if (!response.ok) {
+        Alert.alert(
+          "Error",
+          `Server responded with ${response.status}: ${text}`
+        );
+        console.log("Retrieved API Key:", apiKey);
+        console.log("API Key Length:", apiKey.length);
+        return;
       }
+
+      const result: HandleImageUploadResponse = JSON.parse(text);
+      setCardNumber(result.cardNumber);
+      Alert.alert("Success", "Card number extracted!");
     } catch (error) {
       Alert.alert("Error", "An error occurred.");
       console.error(error);
@@ -135,7 +164,7 @@ export default function UploadImageCard() {
           <Text style={styles.cardNumber}>Card Number: {cardNumber}</Text>
         )}
 
-        {base64Image && (
+        {image && (
           <TouchableOpacity style={styles.button} onPress={handleImageUpload}>
             <Text style={styles.buttonText}>Extract Code</Text>
           </TouchableOpacity>
