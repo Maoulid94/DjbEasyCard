@@ -22,7 +22,7 @@ export default function TabsLayout() {
     <>
       <StatusBar
         barStyle={
-          colors.background === "#010b18" ? "light-content":'dark-content'
+          colors.background === "#010b18" ? "light-content" : "dark-content"
         }
         backgroundColor={colors.background}
       />
@@ -35,7 +35,7 @@ export default function TabsLayout() {
           tabBarStyle: { backgroundColor: colors.background },
           headerTitleStyle: { color: colors.text },
           headerStyle: { backgroundColor: colors.background },
-          tabBarActiveTintColor: colors.primary,
+          tabBarActiveTintColor: colors.tint,
           tabBarInactiveTintColor: colors.text,
         }}
       >

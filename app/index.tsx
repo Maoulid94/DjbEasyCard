@@ -1,36 +1,18 @@
-import {
-  Text,
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  Dimensions,
-  Image
-} from "react-native";
+import { Text, TouchableOpacity, View, StyleSheet, Image } from "react-native";
 import { useRouter } from "expo-router";
-import FastImage from "react-native-fast-image";
-
-const { width } = Dimensions.get("window");
+import { useRef } from "react";
+import ImageAnimation from "../components/imageAnimation";
 
 export default function LoginPage() {
   const router = useRouter();
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Image
-        source={require("../assets/images/card-image.gif")}
-        style={styles.image}
-        resizeMode={FastImage.resizeMode.contain}
-      />
+    <View style={styles.container}>
+      {/* <ImageAnimation /> */}
       <View>
         <TouchableOpacity onPress={() => router.replace("/(tabs)/dashboard")}>
           <Text>Login........</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.replace("/signUp")}>
+        <TouchableOpacity onPress={() => router.replace("/(auth)/SignUp")}>
           <Text>Sign up here........</Text>
         </TouchableOpacity>
       </View>
@@ -38,10 +20,5 @@ export default function LoginPage() {
   );
 }
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  image: {
-    width: width * 0.8, // Set width to 80% of the screen width
-    height: undefined, // Let height adjust automatically
-    aspectRatio: 1,
-  }, // Adjust aspect ratio based on the image's natural dimensions},
+  container: { flex: 1, flexDirection: "column" },
 });
