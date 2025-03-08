@@ -1,4 +1,4 @@
-import Button from "@/components/shared/Button";
+import Button from "@/components/shared/LoginButton";
 import Logo from "@/components/shared/Logo";
 import TextInputField from "@/components/shared/TextInputField";
 import { useRouter } from "expo-router";
@@ -6,11 +6,10 @@ import { useState } from "react";
 import {
   Text,
   View,
-  TouchableOpacity,
-  Image,
   StyleSheet,
   Alert,
 } from "react-native";
+import LoginAndSignUpText from "../../components/shared/LoginAndSignUpText";
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
@@ -43,11 +42,7 @@ export default function Login() {
         return;
       }
       await SecureStore.setItemAsync("API-KEY", result.apiKey);
-      console.log("API-KEY :", result.apiKey);
-      Alert.alert("Success:", result.message);
-      //redirect screem
-      router.replace("/(tabs)/newCard");
-      console.log();
+      router.replace("/(tabs)/Dashboard");
     } catch (error) {
       console.error("Login error:", error);
       Alert.alert("Error", "An unexpected error occurred. Please try again.");
@@ -66,26 +61,18 @@ export default function Login() {
         value={password}
       />
       <Button text="Login" onPress={HandleLoginPage} />
-      <TouchableOpacity
-        style={styles.lastText}
-        onPress={() => router.replace("/(auth)/SignUp")}
-      >
-        <Text style={styles.text}>If you don't have an account?</Text>
-        <Text style={styles.text}>Sign up</Text>
-      </TouchableOpacity>
+      <LoginAndSignUpText
+        text="If you don't have an account?"
+        onPress={() => {
+          router.replace("/(auth)/SignUp");
+        }}
+        link="Sign up"
+      />
     </View>
   );
 }
 const styles = StyleSheet.create({
+  container: { flex: 1 },
   title: { fontSize: 28, textAlign: "center", marginBottom: 20, marginTop: 25 },
   subTitle: { fontSize: 20, textAlign: "center", marginVertical: 15 },
-  lastText: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 8,
-    gap: 6,
-  },
-  text: {
-    fontSize: 16,
-  },
 });

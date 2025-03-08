@@ -1,9 +1,8 @@
-import useThemeColorContent from "../../components/themeColorContent";
 import { Ionicons } from "@expo/vector-icons";
-import { Stack, Tabs } from "expo-router";
-import { StatusBar, TouchableOpacity } from "react-native";
-import { Image, StyleSheet, View } from "react-native";
-import { Colors } from "react-native/Libraries/NewAppScreen";
+import useThemeColorContent from "../../components/themeColorContent";
+import { Tabs } from "expo-router";
+import { StatusBar } from "react-native";
+import { Image, StyleSheet } from "react-native";
 
 export default function TabsLayout() {
   const colors = useThemeColorContent();
@@ -13,11 +12,7 @@ export default function TabsLayout() {
       style={styles.logo}
     />
   );
-  const headerIcon = () => (
-    <TouchableOpacity>
-      <Ionicons name="ellipsis-vertical" size={20} color={colors.text} />
-    </TouchableOpacity>
-  );
+
   return (
     <>
       <StatusBar
@@ -31,7 +26,6 @@ export default function TabsLayout() {
         screenOptions={{
           headerTitleAlign: "center",
           headerLeft: headerLogo,
-          headerRight: headerIcon,
           tabBarStyle: { backgroundColor: colors.background },
           headerTitleStyle: { color: colors.text },
           headerStyle: { backgroundColor: colors.background },
@@ -40,21 +34,21 @@ export default function TabsLayout() {
         }}
       >
         <Tabs.Screen
-          name="dashboard"
+          name="Dashboard"
           options={{
             title: "Dashboard",
           }}
         />
         <Tabs.Screen
-          name="newCard"
+          name="NewCard"
           options={{
             title: "New Card",
           }}
         />
         <Tabs.Screen
-          name="allCardsData"
+          name="Setting"
           options={{
-            title: "Data",
+            title: "Setting",
           }}
         />
       </Tabs>

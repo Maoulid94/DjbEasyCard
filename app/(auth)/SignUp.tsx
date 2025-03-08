@@ -9,7 +9,8 @@ import {
   Alert,
 } from "react-native";
 import TextInputField from "../../components/shared/TextInputField";
-import Button from "@/components/shared/Button";
+import Button from "@/components/shared/LoginButton";
+import LoginAndSignUpText from "../../components/shared/LoginAndSignUpText";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import Logo from "@/components/shared/Logo";
@@ -79,25 +80,17 @@ export default function SignUpPage() {
         value={passwordConfirm}
       />
       <Button text="Create Account" onPress={HandleCreateAccount} />
-      <View style={styles.logincontent}>
-        <Text style={styles.text}>Already have an account?</Text>
-        <Pressable onPress={() => router.replace("/(auth)/Login")}>
-          <Text style={styles.text}>Login</Text>
-        </Pressable>
-      </View>
+      <LoginAndSignUpText
+        text="Already have an account?"
+        onPress={() => {
+          router.replace("/(auth)/Login");
+        }}
+        link="Login"
+      />
     </View>
   );
 }
 const styles = StyleSheet.create({
   container: { flex: 1 },
   title: { fontSize: 28, textAlign: "center", marginVertical: 10 },
-  logincontent: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 8,
-    gap: 6,
-  },
-  text: {
-    fontSize: 16,
-  },
 });

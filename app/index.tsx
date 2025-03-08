@@ -1,24 +1,32 @@
-import { Text, TouchableOpacity, View, StyleSheet, Image } from "react-native";
+import { useEffect } from "react";
 import { useRouter } from "expo-router";
-import { useRef } from "react";
-import ImageAnimation from "../components/imageAnimation";
+import * as SecureStore from "expo-secure-store";
+import { View, ActivityIndicator, Text } from "react-native";
 
-export default function LoginPage() {
+export default function Index() {
   const router = useRouter();
+
+  useEffect(() => {
+    const checkApiKey = async () => {
+      try {
+        const apiKey = await SecureStore.getItemAsync("API-KEY");
+
+        if (apiKey) {
+          router.replace("/(tabs)/Dashboard");
+        } else {
+          router.replace("/(auth)/Login");
+        }
+      } catch (error) {
+        router.replace("/(auth)/Login");
+      }
+    };
+
+    checkApiKey();
+  }, []);
+
   return (
-    <View style={styles.container}>
-      {/* <ImageAnimation /> */}
-      <View>
-        <TouchableOpacity onPress={() => router.replace("/(tabs)/dashboard")}>
-          <Text>Login........</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.replace("/(auth)/SignUp")}>
-          <Text>Sign up here........</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ActivityIndicator size="large" color="#0000ff" />
     </View>
   );
 }
-const styles = StyleSheet.create({
-  container: { flex: 1, flexDirection: "column" },
-});
