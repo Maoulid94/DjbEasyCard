@@ -7,6 +7,7 @@ import {
   Pressable,
   ToastAndroid,
   Alert,
+  StatusBar,
 } from "react-native";
 import TextInputField from "../../components/shared/TextInputField";
 import Button from "@/components/shared/LoginButton";
@@ -15,10 +16,12 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import Logo from "@/components/shared/Logo";
 import Constants from "expo-constants";
+import { useTheme } from "@/components/shared/ThemeContext";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 export default function SignUpPage() {
+  const { colors, theme } = useTheme();
   const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [name, setName] = useState<string>("");
@@ -62,32 +65,40 @@ export default function SignUpPage() {
   };
 
   return (
-    <View>
-      <Text style={styles.title}>Create New Account</Text>
-      <Logo />
-      <TextInputField label="Name" onChangeText={setName} value={name} />
-      <TextInputField label="Email" onChangeText={setEmail} value={email} />
-      <TextInputField
-        label="Password"
-        password={true}
-        onChangeText={setPassword}
-        value={password}
+    <>
+      <StatusBar
+        barStyle={theme === "dark" ? "light-content" : "dark-content"}
+        backgroundColor={colors.BG_CONTENT}
       />
-      <TextInputField
-        label="Confirm Password"
-        password={true}
-        onChangeText={setPasswordConfirm}
-        value={passwordConfirm}
-      />
-      <Button text="Create Account" onPress={HandleCreateAccount} />
-      <LoginAndSignUpText
-        text="Already have an account?"
-        onPress={() => {
-          router.replace("/(auth)/Login");
-        }}
-        link="Login"
-      />
-    </View>
+      <View style={[styles.container, { backgroundColor: colors.BG_CONTENT }]}>
+        <Text style={[styles.title, { color: colors.TEXT }]}>
+          Create New Account
+        </Text>
+        <Logo />
+        <TextInputField label="Name" onChangeText={setName} value={name} />
+        <TextInputField label="Email" onChangeText={setEmail} value={email} />
+        <TextInputField
+          label="Password"
+          password={true}
+          onChangeText={setPassword}
+          value={password}
+        />
+        <TextInputField
+          label="Confirm Password"
+          password={true}
+          onChangeText={setPasswordConfirm}
+          value={passwordConfirm}
+        />
+        <Button text="Create Account" onPress={HandleCreateAccount} />
+        <LoginAndSignUpText
+          text="Already have an account?"
+          onPress={() => {
+            router.replace("/(auth)/Login");
+          }}
+          link="Login"
+        />
+      </View>
+    </>
   );
 }
 const styles = StyleSheet.create({

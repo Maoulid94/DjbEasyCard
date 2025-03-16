@@ -1,14 +1,8 @@
-import {
-  Text,
-  View,
-  StyleSheet,
-  Button,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { Text, View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Menu, Provider as PaperProvider } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import CustomIcon from "../Icon";
+import CustomIcon from "./Icon";
+import { useTheme } from "./ThemeContext";
 
 interface DataTypes {
   visible: boolean;
@@ -28,14 +22,39 @@ export default function ImageUploadAndExtractCode({
   handleImageUpload,
   handleDeleteImage,
 }: DataTypes) {
+  const { colors } = useTheme();
   return (
     <PaperProvider>
-      <View style={styles.container}>
-        <Text style={styles.title}>Scan or Upload Image</Text>
+      <View style={[styles.container, { backgroundColor: colors.BG_CARD }]}>
         <Menu
           visible={visible}
           onDismiss={closeMenu}
-          anchor={<Button title="Select Image" onPress={openMenu} />}
+          anchor={
+            <TouchableOpacity
+              style={[styles.imageCard, { backgroundColor: colors.BG_CONTENT }]}
+              onPress={openMenu}
+            >
+              {!image ? (
+                <View style={styles.infos}>
+                  <MaterialCommunityIcons
+                    name="image-plus"
+                    size={26}
+                    color={colors.TEXT}
+                  />
+                  <Text
+                    style={[
+                      styles.title,
+                      { color: colors.TEXT, marginTop: 10 },
+                    ]}
+                  >
+                    Scan or Upload Image
+                  </Text>
+                </View>
+              ) : (
+                <Image source={{ uri: image }} style={styles.image} />
+              )}
+            </TouchableOpacity>
+          }
         >
           <Menu.Item
             onPress={() => {
@@ -54,16 +73,17 @@ export default function ImageUploadAndExtractCode({
         </Menu>
         {image && (
           <>
-            <Image source={{ uri: image }} style={styles.image} />
             <View style={styles.extractContainer}>
               <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, { backgroundColor: colors.BG_TINT }]}
                 onPress={() => {
                   handleImageUpload();
                 }}
               >
-                <CustomIcon size={24} color="blue" />
-                <Text style={styles.buttonText}>Extract Code</Text>
+                <CustomIcon size={24} color={colors.WHITE} />
+                <Text style={[styles.buttonText, { color: colors.WHITE }]}>
+                  Extract Code
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -86,15 +106,14 @@ export default function ImageUploadAndExtractCode({
 }
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "yellow",
-    height: 350,
+    height: 305,
     marginTop: 10,
     marginHorizontal: 10,
     borderRadius: 15,
+    padding: 10,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 18,
     marginBottom: 10,
     textAlign: "center",
   },
@@ -129,5 +148,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  imageCard: { height: 230, borderRadius: 15, marginBottom: 10 },
+  infos: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 15,
   },
 });

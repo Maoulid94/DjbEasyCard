@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { ThemeProvider } from "@/components/shared/ThemeContext";
 
 export default function RootLayout() {
   useFonts({
@@ -9,11 +10,13 @@ export default function RootLayout() {
     "outfit-regular": require("./../assets/fonts/Outfit-Regular.ttf"),
   });
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)/Login" options={{ title: "Login" }} />
-      <Stack.Screen name="(auth)/SignUp" options={{ title: "Sign Up" }} />
-    </Stack>
+    <ThemeProvider>
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/Login" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/SignUp" options={{ headerShown: false }} />
+      </Stack>
+    </ThemeProvider>
   );
 }

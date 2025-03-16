@@ -1,8 +1,9 @@
 import { Text, View, TextInput, StyleSheet } from "react-native";
+import { useTheme } from "./ThemeContext";
 interface TextInputType {
   label: string;
   onChangeText: (text: string) => void;
-  value:string
+  value: string;
   password?: boolean;
 }
 export default function TextInputField({
@@ -11,11 +12,19 @@ export default function TextInputField({
   value,
   password,
 }: TextInputType) {
+  const { colors } = useTheme();
   return (
     <View>
-      <Text style={styles.text}>{label}</Text>
+      <Text style={[styles.text, { color: colors.TEXT_GRAY }]}>{label}</Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: colors.BG_CONTENT,
+            color: colors.TEXT_GRAY,
+            borderColor: colors.TEXT_GRAY,
+          },
+        ]}
         placeholder={label}
         secureTextEntry={password}
         onChangeText={onChangeText}
@@ -30,7 +39,7 @@ const styles = StyleSheet.create({
   },
   input: {
     padding: 15,
-    borderWidth: 0.3,
+    borderWidth: 1,
     borderRadius: 10,
     marginTop: 8,
     marginBottom: 12,

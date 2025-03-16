@@ -1,11 +1,20 @@
 import StatisticsBox from "@/components/shared/StatisticsBox";
 import React, { useCallback, useMemo, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import { Text, View, StyleSheet, Alert, ScrollView } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Alert,
+  ScrollView,
+  Button,
+} from "react-native";
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
-import { BarChart, PieChart, PieChartPro } from "react-native-gifted-charts";
-import { Item } from "react-native-paper/lib/typescript/components/Drawer/Drawer";
+import { BarChart, PieChartPro } from "react-native-gifted-charts";
+import LegndPieChart from "@/components/shared/Legend";
+import { useTheme } from "@/components/shared/ThemeContext";
+import Loading from "@/components/shared/Loading";
 
 interface DataTypes {
   publicId: string;
@@ -20,6 +29,7 @@ const API_URL = Constants.expoConfig?.extra?.API_URL;
 export default function Dashboard() {
   const [data, setData] = useState<DataTypes[]>([]);
   const [loading, setLoading] = useState(false);
+  const { colors } = useTheme();
 
   const getTodayDate = new Date().toISOString().split("T")[0];
   const getWeekDays = () => {
@@ -34,6 +44,7 @@ export default function Dashboard() {
     .map((day) => ({
       label: day,
       value: data.filter((Item) => Item.createdAt.startsWith(day)).length,
+      frontColor: colors.BG_TINT,
     }))
     .filter((Item) => Item.value > 0);
 
@@ -49,13 +60,14 @@ export default function Dashboard() {
       const cardTypes = ["500", "1000", "2000", "5000", "10000"];
       const pieChartData = totalCards
         ? cardTypes
-            .map((type) => ({
+            .map((type, index) => ({
               value: data.filter((item) => item.cardType === type).length,
               text: `${(
                 (data.filter((item) => item.cardType === type).length /
                   totalCards) *
                 100
               ).toFixed(1)}%`,
+              color: colors.bg_PIE[index % colors.bg_PIE.length],
             }))
             .filter((item) => item.value > 0)
         : [];
@@ -99,92 +111,115 @@ export default function Dashboard() {
   useFocusEffect(
     useCallback(() => {
       DataVisualization();
-    }, [data])
+    }, [])
   );
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        <Text style={styles.title}>General Statistics</Text>
+    <>
+      <Loading visible={loading} />
+      <View style={[styles.container, { backgroundColor: colors.BG_CONTENT }]}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          style={{ marginVertical: 15, marginHorizontal: 10 }}
+        >
+          <View style={styles.statContainer}>
+            <View style={styles.statisticContent}>
+              <StatisticsBox value={totalCards} text="Total cards" />
+              <StatisticsBox value={newCardsToday} text="New cards" />
+            </View>
 
-        <View style={styles.statisticsContent}>
-          <StatisticsBox value={totalCards} text="Total cards" />
-          <StatisticsBox value={newCardsToday} text="New cards" />
-        </View>
+            <View style={styles.statisticContent}>
+              <StatisticsBox value={validCards} text="Valid cards" />
+              <StatisticsBox value={invalidCards} text="Invalid cards" />
+            </View>
+          </View>
 
-        <View style={styles.statisticsContent}>
-          <StatisticsBox value={validCards} text="Valid cards" />
-          <StatisticsBox value={invalidCards} text="Invalid cards" />
-        </View>
+          {pieChartData.length > 0 && (
+            <View
+              style={[
+                styles.pieChartContent,
+                { backgroundColor: colors.BG_CARD },
+              ]}
+            >
+              <Text style={[styles.text, { color: colors.TEXT }]}>
+                Percentage of cards by type
+              </Text>
+              <LegndPieChart />
+              <PieChartPro
+                data={pieChartData}
+                textSize={14}
+                textColor={colors.TEXT}
+                donut
+                shadow
+                showText
+                radius={120}
+                animationDuration={1000}
+                showExternalLabels={true}
+                showValuesAsLabels={true}
+                // isAnimated
+              />
+            </View>
+          )}
 
-        {pieChartData.length > 0 && (
-          <View style={styles.pieChartContent}>
-            <Text style={styles.text}>Percentage of cards by type</Text>
-            <PieChartPro
-              data={pieChartData}
-              textSize={14}
-              textColor="black"
-              donut
-              shadow
-              showText
-              radius={110}
-              animationDuration={1000}
-              showExternalLabels={true}
-              showValuesAsLabels={true}
-              labelsPosition="outward"
-              // isAnimated
+          <View
+            style={[
+              styles.barChartContent,
+              { backgroundColor: colors.BG_CARD },
+            ]}
+          >
+            <Text style={[styles.text, { color: colors.TEXT }]}>
+              Number of cards created this week
+            </Text>
+            <BarChart
+              data={weekDays}
+              barWidth={80}
+              xAxisThickness={0}
+              yAxisThickness={0}
+              showValuesAsTopLabel
+              width={290}
+              height={250}
+              spacing={25}
+              barBorderRadius={4}
+              dashWidth={0}
+              isAnimated
             />
           </View>
-        )}
-
-        <View style={styles.barChartContent}>
-          <Text style={styles.text}>Number of cards created this week</Text>
-          <BarChart
-            data={weekDays}
-            barWidth={80}
-            xAxisThickness={0}
-            yAxisThickness={0}
-            showValuesAsTopLabel
-            width={290}
-            height={250}
-            spacing={25}
-            barBorderRadius={4}
-            dashWidth={0}
-            isAnimated
-            animationDuration={500}
-          />
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
+    </>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  statisticsContent: {
-    flexDirection: "row",
-    marginHorizontal: 45,
-    marginVertical: 12,
-    justifyContent: "space-between",
+  scrollContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
   },
-  title: {
-    fontSize: 22,
-    textAlign: "center",
-    marginTop: 15,
+  statContainer: {
+    gap: 12,
+    // paddingVertical: 10,
+    // marginHorizontal: 15,
+  },
+  statisticContent: {
+    gap: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   barChartContent: {
     height: 400,
-    backgroundColor: "blue",
-    marginVertical: 15,
-    marginHorizontal: 15,
+    // marginVertical: 6,
+    // marginHorizontal: 15,
+    borderRadius: 10,
   },
   pieChartContent: {
-    height: 380,
-    backgroundColor: "yellow",
-    marginVertical: 15,
-    marginHorizontal: 15,
+    height: 350,
+    // marginVertical: 6,
+    // marginHorizontal: 15,
     alignItems: "center",
+    borderRadius: 10,
   },
-  text: { fontSize: 18, textAlign: "center", marginBottom: 35, marginTop: 15 },
+  text: { fontSize: 18, textAlign: "center", marginBottom: 15, marginTop: 15 },
 });

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { View, ActivityIndicator, Text } from "react-native";
+import Loading from "@/components/shared/Loading";
 
 export default function Index() {
   const router = useRouter();
@@ -24,9 +24,5 @@ export default function Index() {
     checkApiKey();
   }, []);
 
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <ActivityIndicator size="large" color="#0000ff" />
-    </View>
-  );
+  return <Loading visible={true} />;
 }

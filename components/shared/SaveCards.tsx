@@ -14,6 +14,8 @@ import DropDownPicker from "react-native-dropdown-picker";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import SubmitButton from "./ActionButtons";
 import AddCard from "./AddCard";
+import { useTheme } from "./ThemeContext";
+import Loading from "./Loading";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
@@ -27,8 +29,10 @@ interface CardData {
 }
 
 export default function AddAllCards({ cardNumbers }: AddCardsProps) {
+  const { colors } = useTheme();
   const [cards, setCards] = useState<CardData[]>([]);
   const [indices, setIndices] = useState<number[]>([]);
+  const [loading, setLoading] = useState(false);
   const [dropdownOpenIndex, setDropdownOpenIndex] = useState<number | null>(
     null
   );
@@ -65,6 +69,7 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
       Alert.alert("Error", "API key not found. Please log in again.");
       return;
     }
+    setLoading(true);
     try {
       const formattedCards = cards.map((card) => ({
         ...card,
@@ -76,13 +81,19 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
         body: JSON.stringify({ cards }),
       });
       const result = await response.json();
+      console.log(result);
+
       if (!response.ok) {
         Alert.alert(result.message);
+        console.log("msg: ", result.message);
+
         return;
       }
       Alert.alert("Success", "Cards added successfully!");
     } catch (error: any) {
       Alert.alert("Error", error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -98,30 +109,45 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
           >
             <FlatList
               data={cards}
-              keyExtractor={(_, index) => index.toString()}
+              keyExtractor={(card) => card.code}
               renderItem={({ item, index }) => (
                 <View
                   style={[
                     styles.cardWrapper,
+                    { backgroundColor: colors.BG_CARD },
                     dropdownOpenIndex === index
-                      ? { zIndex: 1000 }
+                      ? { zIndex: 100 }
                       : { zIndex: 1 },
                   ]}
                 >
-                  <View style={styles.cardBox}>
-                    <Text style={styles.cardNbr}>Card: {indices[index]}</Text>
+                  <View
+                    style={[
+                      styles.cardBox,
+                      { backgroundColor: colors.BG_CARD },
+                    ]}
+                  >
+                    <Text style={[styles.cardNbr, { color: colors.TEXT }]}>
+                      {indices[index]}:
+                    </Text>
                     <TextInput
-                      style={styles.code}
+                      style={[
+                        styles.code,
+                        {
+                          backgroundColor: colors.BG_CONTENT,
+                          color: colors.TEXT,
+                        },
+                      ]}
                       value={item.code.toString()}
                       onChangeText={(text) => {
-                        const newCode = text.replace(/\D/g, ""); // Remove non-numeric characters
+                        // const newCode = text.replace(/\D/g, ""); // Remove non-numeric characters
                         setCards((prevCards) =>
                           prevCards.map((card, i) =>
-                            i === index ? { ...card, code: newCode } : card
+                            i === index ? { ...card, code: text } : card
                           )
                         );
                       }}
                       // keyboardType="numeric"
+                      editable={true}
                     />
                     <View style={styles.cardType}>
                       <DropDownPicker
@@ -144,26 +170,38 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
                           );
                         }}
                         setItems={setItems}
-                        style={styles.dropdown}
+                        style={[
+                          styles.dropdown,
+                          { backgroundColor: colors.BG_CONTENT },
+                        ]}
                         dropDownContainerStyle={[
                           styles.dropdownContainer,
+                          { backgroundColor: colors.BG_CONTENT },
                           dropdownOpenIndex === index
-                            ? { zIndex: 1000, elevation: 10 }
+                            ? { zIndex: 100, elevation: 10 }
                             : {},
                         ]}
                       />
                     </View>
                     <TouchableOpacity
                       onPress={() => handleDeleteCard(index)}
-                      style={styles.deleteButton}
+                      style={[
+                        styles.deleteButton,
+                        { backgroundColor: colors.BG_TINT },
+                      ]}
                     >
-                      <FontAwesome name="remove" size={24} color="white" />
+                      <FontAwesome
+                        name="remove"
+                        size={24}
+                        color={colors.TEXT}
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
               )}
             />
           </View>
+          <Loading visible={loading} />
           <SubmitButton
             onPressCancel={() => setCards([])}
             onPressSubmit={handleSaveCards}
@@ -177,7 +215,7 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
 
 const styles = StyleSheet.create({
   listCardContainer: {
-    height: 230,
+    height: 260,
     marginBottom: 10,
     marginHorizontal: 10,
   },
@@ -187,54 +225,46 @@ const styles = StyleSheet.create({
   cardBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFBABA",
+    gap: 4,
     padding: 10,
     borderRadius: 10,
     justifyContent: "space-between",
     marginBottom: 10,
   },
   cardNbr: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "bold",
-    color: "#333",
   },
   code: {
-    backgroundColor: "#EDEDED",
+    flex: 2,
     borderRadius: 8,
     fontSize: 16,
     color: "#333",
     borderWidth: 1,
     borderColor: "#DDD",
     height: 48,
-    textAlign: "center",
     paddingHorizontal: 10,
   },
   cardType: {
+    flex: 1.5,
+    // zIndex:102
     width: 120,
   },
   dropdownContainer: {
-    width: 120,
+    // zIndex:102
+    // flex:2,
+    // width: 120,
   },
   dropdown: {
-    backgroundColor: "#EDEDED",
     borderWidth: 0.5,
     borderColor: "#CCC",
+    zIndex: 102,
   },
   deleteButton: {
     height: 40,
     width: 40,
-    backgroundColor: "#D9534F",
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
-  },
-  fooContainer: {
-    flexDirection: "row",
-    gap: 15,
-    marginHorizontal: 10,
-    backgroundColor: "yellow",
-    padding: 5,
-    borderRadius: 10,
-    marginBottom: 8,
   },
 });

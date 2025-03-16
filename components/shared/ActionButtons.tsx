@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity, StyleSheet, View } from "react-native";
+import { useTheme } from "./ThemeContext";
 
 interface DataTypes {
   onPressCancel: () => void;
@@ -10,16 +11,20 @@ export default function SubmitButton({
   onPressCancel,
   onPressSubmit,
 }: DataTypes) {
+  const { colors } = useTheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.BG_CARD }]}>
       <TouchableOpacity
-        style={[styles.box, { marginLeft: 6 }]}
+        style={[styles.box, { marginLeft: 6, backgroundColor: colors.BG_TINT }]}
         onPress={onPressCancel}
       >
-        <Text>Cancel</Text>
+        <Text style={[styles.text, { color: colors.TEXT }]}>Cancel</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.box} onPress={onPressSubmit}>
-        <Text>Submit</Text>
+      <TouchableOpacity
+        style={[styles.box, { backgroundColor: colors.BG_TINT }]}
+        onPress={onPressSubmit}
+      >
+        <Text style={[styles.text, { color: colors.TEXT }]}>Submit</Text>
       </TouchableOpacity>
     </View>
   );
@@ -29,20 +34,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 15,
     marginHorizontal: 10,
-    backgroundColor: "yellow",
     padding: 5,
     borderRadius: 10,
-    marginBottom: 8,
+    marginBottom: 10,
   },
   box: {
     width: "38%",
-
     fontSize: 18,
     padding: 9,
-    backgroundColor: "red",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
     fontFamily: "bold",
   },
+  text: { fontSize: 18, textAlign: "center", fontFamily: "bold" },
 });

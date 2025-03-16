@@ -1,11 +1,4 @@
-import {
-  StyleSheet,
-  Alert,
-  View,
-  ScrollView,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { StyleSheet, Alert, View } from "react-native";
 import { useState, useEffect } from "react";
 import { Camera } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
@@ -13,12 +6,16 @@ import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 import ImageUploadAndExtractCode from "@/components/shared/ImageContainer";
 import AddAllCards from "@/components/shared/SaveCards";
+import { useTheme } from "@/components/shared/ThemeContext";
+import Loading from "@/components/shared/Loading";
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 export default function UploadImageCard() {
+  const { colors } = useTheme();
   const [image, setImage] = useState<string>("");
   const [cardNumbers, setCardNumbers] = useState<number[]>([]);
+  const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   const openMenu = () => setIsVisible(true);
@@ -75,7 +72,7 @@ export default function UploadImageCard() {
       Alert.alert("Error", "API key not found. Please log in again.");
       return;
     }
-
+    setLoading(true);
     try {
       const formData = new FormData();
       formData.append("image", {
@@ -110,12 +107,15 @@ export default function UploadImageCard() {
     } catch (error) {
       Alert.alert("Error", "An error occurred.");
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {}, [cardNumbers]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.BG_CONTENT }]}>
+      <Loading visible={loading} />
       <ImageUploadAndExtractCode
         visible={isVisible}
         openMenu={openMenu}
@@ -130,5 +130,5 @@ export default function UploadImageCard() {
   );
 }
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "skyblue" },
+  container: { flex: 1 },
 });
