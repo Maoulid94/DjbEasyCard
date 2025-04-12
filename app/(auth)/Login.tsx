@@ -8,8 +8,7 @@ import LoginAndSignUpText from "../../components/shared/LoginAndSignUpText";
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 import { useTheme } from "@/components/shared/ThemeContext";
-
-const API_URL = Constants.expoConfig?.extra?.API_URL;
+import { API_URL } from "@/constants/variables";
 
 export default function Login() {
   const { colors, theme } = useTheme();

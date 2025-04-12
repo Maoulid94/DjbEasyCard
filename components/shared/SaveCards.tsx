@@ -10,14 +10,14 @@ import {
 } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
-import DropDownPicker from "react-native-dropdown-picker";
+// import DropDownPicker from "react-native-dropdown-picker";
+import { Dropdown } from "react-native-element-dropdown";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import SubmitButton from "./ActionButtons";
 import AddCard from "./AddCard";
 import { useTheme } from "./ThemeContext";
 import Loading from "./Loading";
-
-const API_URL = Constants.expoConfig?.extra?.API_URL;
+import { API_URL } from "@/constants/variables";
 
 interface AddCardsProps {
   cardNumbers: number[];
@@ -71,10 +71,6 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
     }
     setLoading(true);
     try {
-      const formattedCards = cards.map((card) => ({
-        ...card,
-        code: String(card.code),
-      }));
       const response = await fetch(`${API_URL}/cards/all?apiKey=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,12 +82,13 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
       if (!response.ok) {
         Alert.alert(result.message);
         console.log("msg: ", result.message);
-
         return;
       }
       Alert.alert("Success", "Cards added successfully!");
+      setCards([]);
     } catch (error: any) {
       Alert.alert("Error", error.message);
+      console.log(error.message);
     } finally {
       setLoading(false);
     }
@@ -139,7 +136,6 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
                       ]}
                       value={item.code.toString()}
                       onChangeText={(text) => {
-                        // const newCode = text.replace(/\D/g, ""); // Remove non-numeric characters
                         setCards((prevCards) =>
                           prevCards.map((card, i) =>
                             i === index ? { ...card, code: text } : card
@@ -150,7 +146,7 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
                       editable={true}
                     />
                     <View style={styles.cardType}>
-                      <DropDownPicker
+                      {/* <DropDownPicker
                         placeholder="Select"
                         open={dropdownOpenIndex === index}
                         value={item.cardType}
@@ -181,6 +177,21 @@ export default function AddAllCards({ cardNumbers }: AddCardsProps) {
                             ? { zIndex: 100, elevation: 10 }
                             : {},
                         ]}
+                      /> */}
+                      <Dropdown
+                        data={items}
+                        labelField={"label"}
+                        valueField={"value"}
+                        value={item.cardType}
+                        onChange={(selectedItem) => {
+                          setCards((preCard) =>
+                            preCard.map((card, i) =>
+                              i === index
+                                ? { ...card, cardType: selectedItem.value }
+                                : card
+                            )
+                          );
+                        }}
                       />
                     </View>
                     <TouchableOpacity

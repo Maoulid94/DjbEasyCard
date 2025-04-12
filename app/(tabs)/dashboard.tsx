@@ -15,6 +15,9 @@ import { BarChart, PieChartPro } from "react-native-gifted-charts";
 import LegndPieChart from "@/components/shared/Legend";
 import { useTheme } from "@/components/shared/ThemeContext";
 import Loading from "@/components/shared/Loading";
+import { API_URL } from "@/constants/variables";
+import verifyApiKey from "@/constants/Valid_API_KEY";
+import { router } from "expo-router";
 
 interface DataTypes {
   publicId: string;
@@ -23,8 +26,6 @@ interface DataTypes {
   isValid: boolean;
   createdAt: string;
 }
-
-const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 export default function Dashboard() {
   const [data, setData] = useState<DataTypes[]>([]);
@@ -44,7 +45,6 @@ export default function Dashboard() {
     .map((day) => ({
       label: day,
       value: data.filter((Item) => Item.createdAt.startsWith(day)).length,
-      frontColor: colors.BG_TINT,
     }))
     .filter((Item) => Item.value > 0);
 
@@ -84,11 +84,15 @@ export default function Dashboard() {
   const DataVisualization = async () => {
     const apiKey = await SecureStore.getItemAsync("API-KEY");
     if (!apiKey) {
-      Alert.alert("Error", "API key not found. Please log in again.");
-      console.log("api:", apiKey);
-
-      return;
+      throw new Error("Missing API Key!");
     }
+    // const isValidKey = await verifyApiKey(apiKey);
+    // if (!isValidKey) {
+    //   Alert.alert("Invalid API Key", " Please log in again.");
+    //   await SecureStore.deleteItemAsync("API-KEY");
+    //   router.replace("/(auth)/Login");
+    //   return;
+    // }
     try {
       setLoading(true);
       const response = await fetch(`${API_URL}/cards?apiKey=${apiKey}`);
@@ -171,10 +175,17 @@ export default function Dashboard() {
               Number of cards created this week
             </Text>
             <BarChart
+              yAxisIndicesColor={colors.TEXT}
+              xAxisIndicesColor={colors.TEXT}
+              xAxisColor={colors.TEXT}
+              yAxisColor={colors.TEXT}
+              color={colors.TEXT}
+              frontColor={colors.BG_TINT}
+              xAxisLabelTextStyle={colors.TEXT}
               data={weekDays}
               barWidth={80}
-              xAxisThickness={0}
-              yAxisThickness={0}
+              // xAxisThickness={0}
+              // yAxisThickness={0}
               showValuesAsTopLabel
               width={290}
               height={250}
@@ -200,8 +211,6 @@ const styles = StyleSheet.create({
   },
   statContainer: {
     gap: 12,
-    // paddingVertical: 10,
-    // marginHorizontal: 15,
   },
   statisticContent: {
     gap: 12,
@@ -210,14 +219,10 @@ const styles = StyleSheet.create({
   },
   barChartContent: {
     height: 400,
-    // marginVertical: 6,
-    // marginHorizontal: 15,
     borderRadius: 10,
   },
   pieChartContent: {
     height: 350,
-    // marginVertical: 6,
-    // marginHorizontal: 15,
     alignItems: "center",
     borderRadius: 10,
   },

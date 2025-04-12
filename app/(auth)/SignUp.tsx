@@ -17,8 +17,7 @@ import { useRouter } from "expo-router";
 import Logo from "@/components/shared/Logo";
 import Constants from "expo-constants";
 import { useTheme } from "@/components/shared/ThemeContext";
-
-const API_URL = Constants.expoConfig?.extra?.API_URL;
+import { API_URL } from "@/constants/variables";
 
 export default function SignUpPage() {
   const { colors, theme } = useTheme();

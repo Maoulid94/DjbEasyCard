@@ -14,10 +14,12 @@ import Constants from "expo-constants";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useTheme } from "./ThemeContext";
 import Loading from "./Loading";
-
-const API_URL = Constants.expoConfig?.extra?.API_URL;
+import { API_URL } from "@/constants/variables";
+import verifyApiKey from "@/constants/Valid_API_KEY";
+import { useRouter } from "expo-router";
 
 export default function AddCard() {
+  const router = useRouter();
   const { colors } = useTheme();
   const [code, setCode] = useState<string>("");
   const [cardType, setCardType] = useState<string>("");
@@ -41,14 +43,21 @@ export default function AddCard() {
   };
 
   const handleAddCard = async () => {
-    const api = await SecureStore.getItemAsync("API-KEY");
-    if (!api) {
+    const apiKey = await SecureStore.getItemAsync("API-KEY");
+    if (!apiKey) {
       Alert.alert("Error", "API key not found. Please log in again.");
       return;
     }
+    // const isValidKey = await verifyApiKey(apiKey);
+    // if (!isValidKey) {
+    //   Alert.alert("Invalid API Key", " Please log in again.");
+    //   await SecureStore.deleteItemAsync("API-KEY");
+    //   router.replace("/(auth)/Login");
+    //   return;
+    // }
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/cards?apiKey=${api}`, {
+      const response = await fetch(`${API_URL}/cards?apiKey=${apiKey}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

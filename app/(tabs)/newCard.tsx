@@ -8,10 +8,12 @@ import ImageUploadAndExtractCode from "@/components/shared/ImageContainer";
 import AddAllCards from "@/components/shared/SaveCards";
 import { useTheme } from "@/components/shared/ThemeContext";
 import Loading from "@/components/shared/Loading";
-
-const API_URL = Constants.expoConfig?.extra?.API_URL;
+import { API_URL } from "@/constants/variables";
+import verifyApiKey from "@/constants/Valid_API_KEY";
+import { useRouter } from "expo-router";
 
 export default function UploadImageCard() {
+  const router = useRouter();
   const { colors } = useTheme();
   const [image, setImage] = useState<string>("");
   const [cardNumbers, setCardNumbers] = useState<number[]>([]);
@@ -72,6 +74,13 @@ export default function UploadImageCard() {
       Alert.alert("Error", "API key not found. Please log in again.");
       return;
     }
+    // const isValidKey = await verifyApiKey(apiKey);
+    // if (!isValidKey) {
+    //   Alert.alert("Invalid API Key", " Please log in again.");
+    //   await SecureStore.deleteItemAsync("API-KEY");
+    //   router.replace("/(auth)/Login");
+    //   return;
+    // }
     setLoading(true);
     try {
       const formData = new FormData();
@@ -82,7 +91,7 @@ export default function UploadImageCard() {
       } as unknown as Blob);
 
       const response = await fetch(
-        `${API_URL}/cards/extract?apiKey=${apiKey}`,
+        `${API_URL}/cards/extract/fake?apiKey=${apiKey}`,
         {
           method: "POST",
           headers: {
